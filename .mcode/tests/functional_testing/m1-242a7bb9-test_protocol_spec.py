@@ -9,7 +9,7 @@ This script supports two modes:
 1. SRC Validation: Tests endpoints and captures responses (no expected_response)
 2. DST Contract Validation: Tests endpoints and validates responses match expected (has expected_response)
 
-Generated at: 2026-03-13T01:48:55.325181+00:00
+Generated at: 2026-03-13T01:54:24.817201+00:00
 Project: rps
 Milestone: 1
 """
@@ -248,27 +248,16 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
         "cleanup": null
     },
     {
-        "name": "make_move_duplicate_player",
-        "category": "INVALID_INPUT",
+        "name": "make_move_player_zero_boundary",
+        "category": "BOUNDARY",
         "endpoint": "/games/{id}/moves",
         "method": "POST",
-        "description": "Player 1 moves twice \u2014 second move should be rejected with 422",
+        "description": "Submit a move with player 0 (boundary below valid range), expect 422 validation error",
         "setup": {
             "endpoint": "/games",
             "method": "POST",
             "body": null,
-            "extract_id_from": "id",
-            "then": {
-                "endpoint": "/games/{id}/moves",
-                "method": "POST",
-                "path": {
-                    "id": "$setup_id"
-                },
-                "body": {
-                    "player": 1,
-                    "choice": "rock"
-                }
-            }
+            "extract_id_from": "id"
         },
         "request_data": {
             "path": {
@@ -276,56 +265,31 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
             },
             "query": {},
             "body": {
-                "player": 1,
-                "choice": "paper"
+                "player": 0,
+                "choice": "rock"
             }
         },
         "expected_status": 422,
         "cleanup": null
     },
     {
-        "name": "make_move_game_already_complete",
-        "category": "INVALID_INPUT",
+        "name": "make_move_missing_fields",
+        "category": "MISSING_REQUIRED",
         "endpoint": "/games/{id}/moves",
         "method": "POST",
-        "description": "Attempt to make a move on a completed game, expect 422",
+        "description": "Submit a move with empty body (missing player and choice), expect 422 validation error",
         "setup": {
             "endpoint": "/games",
             "method": "POST",
             "body": null,
-            "extract_id_from": "id",
-            "then": {
-                "endpoint": "/games/{id}/moves",
-                "method": "POST",
-                "path": {
-                    "id": "$setup_id"
-                },
-                "body": {
-                    "player": 1,
-                    "choice": "rock"
-                },
-                "then": {
-                    "endpoint": "/games/{id}/moves",
-                    "method": "POST",
-                    "path": {
-                        "id": "$setup_id"
-                    },
-                    "body": {
-                        "player": 2,
-                        "choice": "scissors"
-                    }
-                }
-            }
+            "extract_id_from": "id"
         },
         "request_data": {
             "path": {
                 "id": "$setup_id"
             },
             "query": {},
-            "body": {
-                "player": 1,
-                "choice": "rock"
-            }
+            "body": {}
         },
         "expected_status": 422,
         "cleanup": null
