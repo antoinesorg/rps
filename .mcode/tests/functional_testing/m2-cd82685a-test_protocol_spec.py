@@ -9,7 +9,7 @@ This script supports two modes:
 1. SRC Validation: Tests endpoints and captures responses (no expected_response)
 2. DST Contract Validation: Tests endpoints and validates responses match expected (has expected_response)
 
-Generated at: 2026-03-13T01:56:26.254694+00:00
+Generated at: 2026-03-13T01:59:56.970914+00:00
 Project: rps
 Milestone: 2
 """
@@ -80,16 +80,11 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
         "category": "HAPPY_PATH",
         "endpoint": "/games/{id}/moves",
         "method": "POST",
-        "description": "Create a game, submit both moves (rock beats scissors), verify game completes with player1 as winner",
-        "setup": {
-            "endpoint": "/games",
-            "method": "POST",
-            "body": {},
-            "extract_id_from": "id"
-        },
+        "description": "Create a game, submit player 2's move (scissors) to a game where player 1 already played rock via seed data, verify game completes with player1 as winner",
+        "setup": null,
         "request_data": {
             "path": {
-                "id": "$setup_id"
+                "id": "seed_winner_test"
             },
             "query": {},
             "body": {
@@ -98,21 +93,6 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
             }
         },
         "expected_status": 200,
-        "setup_sequence": [
-            {
-                "endpoint": "/games/$setup_id/moves",
-                "method": "POST",
-                "request_data": {
-                    "path": {
-                        "id": "$setup_id"
-                    },
-                    "body": {
-                        "player": 1,
-                        "choice": "rock"
-                    }
-                }
-            }
-        ],
         "cleanup": null
     },
     {
@@ -120,16 +100,11 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
         "category": "HAPPY_PATH",
         "endpoint": "/games/{id}/moves",
         "method": "POST",
-        "description": "Create a game, both players choose rock, verify draw outcome",
-        "setup": {
-            "endpoint": "/games",
-            "method": "POST",
-            "body": {},
-            "extract_id_from": "id"
-        },
+        "description": "Submit player 2's move (rock) to a game where player 1 already played rock via seed data, verify draw outcome",
+        "setup": null,
         "request_data": {
             "path": {
-                "id": "$setup_id"
+                "id": "seed_draw_test"
             },
             "query": {},
             "body": {
@@ -138,21 +113,6 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
             }
         },
         "expected_status": 200,
-        "setup_sequence": [
-            {
-                "endpoint": "/games/$setup_id/moves",
-                "method": "POST",
-                "request_data": {
-                    "path": {
-                        "id": "$setup_id"
-                    },
-                    "body": {
-                        "player": 1,
-                        "choice": "rock"
-                    }
-                }
-            }
-        ],
         "cleanup": null
     },
     {
@@ -230,16 +190,11 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
         "category": "INVALID_INPUT",
         "endpoint": "/games/{id}/moves",
         "method": "POST",
-        "description": "Create a game, player 1 moves, then player 1 tries to move again, expect 422",
-        "setup": {
-            "endpoint": "/games",
-            "method": "POST",
-            "body": {},
-            "extract_id_from": "id"
-        },
+        "description": "Player 1 tries to move again on a game where player 1 already moved (pre-seeded), expect 422",
+        "setup": null,
         "request_data": {
             "path": {
-                "id": "$setup_id"
+                "id": "seed_dup_test"
             },
             "query": {},
             "body": {
@@ -248,21 +203,6 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
             }
         },
         "expected_status": 422,
-        "setup_sequence": [
-            {
-                "endpoint": "/games/$setup_id/moves",
-                "method": "POST",
-                "request_data": {
-                    "path": {
-                        "id": "$setup_id"
-                    },
-                    "body": {
-                        "player": 1,
-                        "choice": "rock"
-                    }
-                }
-            }
-        ],
         "cleanup": null
     },
     {
@@ -270,16 +210,11 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
         "category": "INVALID_INPUT",
         "endpoint": "/games/{id}/moves",
         "method": "POST",
-        "description": "Create a game, complete it with both moves, then attempt another move, expect 422",
-        "setup": {
-            "endpoint": "/games",
-            "method": "POST",
-            "body": {},
-            "extract_id_from": "id"
-        },
+        "description": "Attempt to move on a completed game (pre-seeded), expect 422",
+        "setup": null,
         "request_data": {
             "path": {
-                "id": "$setup_id"
+                "id": "seed_complete_test"
             },
             "query": {},
             "body": {
@@ -288,34 +223,6 @@ TEST_CASES: list[dict[str, Any]] = resolve_env_placeholders(
             }
         },
         "expected_status": 422,
-        "setup_sequence": [
-            {
-                "endpoint": "/games/$setup_id/moves",
-                "method": "POST",
-                "request_data": {
-                    "path": {
-                        "id": "$setup_id"
-                    },
-                    "body": {
-                        "player": 1,
-                        "choice": "rock"
-                    }
-                }
-            },
-            {
-                "endpoint": "/games/$setup_id/moves",
-                "method": "POST",
-                "request_data": {
-                    "path": {
-                        "id": "$setup_id"
-                    },
-                    "body": {
-                        "player": 2,
-                        "choice": "scissors"
-                    }
-                }
-            }
-        ],
         "cleanup": null
     }
 ]''')
