@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Service\GameService;
-use CanonicalLogs\CanonicalLogger;
+use App\Logging\CanonicalLogger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
